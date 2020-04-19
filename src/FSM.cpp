@@ -15,13 +15,24 @@ using namespace std;
 
 namespace fsm
 {
+//Static data member instantiation
 FSM * FSM::m_Instance = nullptr;
 std::mutex FSM::m_sync;
 std::condition_variable FSM::m_condVar;
 bool FSM::m_eventOccurred = false;
 std::thread * FSM::m_smThread = nullptr;
 bool FSM::m_Alive = true;
-//Operations
+
+//Constructor is private. Always create via Init 
+FSM::FSM(const std::string& p_smname )
+{
+	m_currstate = nullptr;
+	m_name = p_smname;
+	m_smThread = nullptr;
+	m_eventOccurred = false;
+	m_eventVar = nullptr;
+	m_Alive = true;
+}
 bool FSM::Init(const std::string& p_smname)
 {
 	try
@@ -40,11 +51,7 @@ std::string FSM::getState() const
 {
 	return m_currstate->getState();
 }
-bool FSM::setState(FSM_State* p_newstate)
-{
-	m_currstate = p_newstate;
-}
-//Add Transitions
+//Add default ransitions
 void FSM::AddDefault( FSM_State* p_currstate )
 {
 	m_currstate = p_currstate;
@@ -64,6 +71,32 @@ void FSM::EventVariableUpdated( FSM_Event_Variable * p_eventVar)
 	//Unblock SM running thread
 	m_condVar.notify_one();
 }
+//FSM running thread function
+void FSM::FsmRunningThread( FSM * p_context)
+{
+	//Run while alive
+	while(m_Alive)
+	{
+		// Wait until some event vaiable is updated
+	    std::unique_lock<std::mutex> lk(m_sync);
+	    m_condVar.wait(lk, []{return m_eventOccurred;});
+	    p_context->PerformTransition();
+	}
+}
+void FSM::ShutDown()
+{
+	//Set thread control variable to false
+	m_Alive = false;
+	//Signal event occurred
+	m_eventOccurred = true;
+	//Unblock SM running thread
+	m_condVar.notify_one();
+	//Wait for SM thread to join
+	m_smThread->join();
+	//deallocate SM and thread pointers
+	delete m_smThread;
+	delete m_Instance;
+}
 void FSM::PerformTransition( )
 {
 	if ( ( ! m_transitionMap.empty() ) &&
@@ -79,7 +112,8 @@ void FSM::PerformTransition( )
 		l_transiton2ExecuteItr = m_transitionMap.find(l_guard);
 		if ( l_guardCheck &&              									  //Short circuit here if Guard evaluation fails
 			 ( l_transiton2ExecuteItr != m_transitionMap.end() )   &&        //Short circuit here if the transition is not defined
-			 ( l_transiton2ExecuteItr->second.first == m_currstate ) 		//Current state is not correct for the transition
+			 ( l_transiton2ExecuteItr->second.first == m_currstate ) 		//Current state is not correct for the transition - Never should evaluate to false. 
+			 															   //Guard should evaluate false if the states are not correct
 		   )
 		{
 			m_currstate = l_transiton2ExecuteItr->second.second;

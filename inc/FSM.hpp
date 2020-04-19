@@ -22,72 +22,43 @@ class FSM_Event_Variable;
 class FSM
 {
 	private:
-		//Make default constructor private. Always create via Init 
-		FSM(const std::string& p_smname )
-		{
-			m_currstate = nullptr;
-			m_name = p_smname;
-			m_smThread = nullptr;
-			m_eventOccurred = false;
-			m_eventVar = nullptr;
-			m_Alive = true;
-		}
+		//Make constructor private. Always create via Init 
+		FSM(const std::string& p_smname );
 		//Delete copy constructor, = operator and == operator
 		FSM(FSM & p_obj) = delete;
 		FSM& operator=(const FSM& p_obj) = delete;
 		bool operator==(const FSM& p_obj) = delete;
-		//FSM running thread function
-		static void FsmRunningThread( FSM * p_context)
-		{
-			//Run while alive
-			while(m_Alive)
-			{
-				// Wait until some event vaiable is updated
-			    std::unique_lock<std::mutex> lk(m_sync);
-			    m_condVar.wait(lk, []{return m_eventOccurred;});
-			    p_context->PerformTransition();
-			}
-		}
-		// Actual state transition is done here
-		void PerformTransition( );
+		//Static data members
 		static std::mutex m_sync;
 		static std::condition_variable m_condVar;
 		static bool m_eventOccurred;
 		static bool m_Alive;
 		static std::thread * m_smThread;
-		FSM_Event_Variable * m_eventVar;
 		static FSM * m_Instance;
+		//Static methods 
+		static void FsmRunningThread( FSM * p_context);
+		//Private data members
+		FSM_Event_Variable * m_eventVar;
 		FSM_State* m_currstate;
 		std::string m_name;
 		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* >   >  m_transitionMap;
+		//Private methods
+		void PerformTransition( );
 	protected :
 
 	public :
 			//Operations
-			static bool Init(const std::string& p_smname);
 			std::string getState() const;
-			bool setState(FSM_State* p_newstate);
-			//Add transition
 			void AddDefault( FSM_State* p_currstate );
 			void AddTransition(	FSM_State* p_currstate, 
 								FSM_State* p_nextstate, 
 								FSM_Guard * p_transguard
 							);
 			void EventVariableUpdated( FSM_Event_Variable * p_eventVar);
-			static void ShutDown()
-			{
-				m_Alive = false;
-				m_eventOccurred = true;
-				//Unblock SM running thread
-				m_condVar.notify_one();
-				//Wait for SM thread to join
-				m_smThread->join();
-				//deallocate SM and thread pointers
-				delete m_smThread;
-				delete m_Instance;
-			}
-			//Static functions 
+			//Static methods functions 
+			static bool Init(const std::string& p_smname);
 			static FSM& Instance();
+			static void ShutDown();
 	
 };
 }
