@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <thread>
-
+#include <chrono>
 using namespace std;
 using namespace fsm;
 enum Events : int //Always define as int
@@ -116,9 +116,9 @@ int main(int argc, char ** argv)
 	FSM::Instance().AddDefault( &l_state1 );
 
 	//Create event variables
-	FSM_Event_Variable l_event1;//1-2 transition
-	FSM_Event_Variable l_event2;//2-3 transition
-	FSM_Event_Variable l_event3;//3-1 transition
+	FSM_Event_Variable<int> l_event1;//1-2 transition
+	FSM_Event_Variable<int> l_event2;//2-3 transition
+	FSM_Event_Variable<int> l_event3;//3-1 transition
 
 	//Create guards
 	GuardOne l_guard1; //1-2 transition
@@ -140,16 +140,17 @@ int main(int argc, char ** argv)
 	while(l_run && ( 1 == argc ))
 	{
 		int i;
-		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
-		cout<<"Enter state to transition to : \n1. Two \n2. Three \n3. One\n4. Exit"<<endl;
+		cout<<"Enter state to transition to : \n1. Two \n2. Three \n3. One\n4. Current State \n5. Exit"<<endl;
 		cin>>i;
 		switch(i)
 		{
-			case 1: l_event1.setValue( );
+			case 1: l_event1.setValue( 1 );
 					break;
-			case 2: l_event2.setValue( );
+			case 2: l_event2.setValue( 2 );
 					break;
-			case 3: l_event3.setValue( );
+			case 3: l_event3.setValue( 3 );
+					break;
+			case 4: cout<<"Current State : "<<FSM::Instance().getState()<<endl;
 					break;
 			default : 
 					l_run  = false;
@@ -157,12 +158,18 @@ int main(int argc, char ** argv)
 		}
 	}
 	if ( argc > 1) // Run automated tests for any command line input
-	{		
-		l_event1.setValue( );
-		l_event2.setValue( );
-		l_event3.setValue( );
+	{	
+		cout<<"Current State : "<<FSM::Instance().getState()<<endl;	
+		l_event1.setValue( 1 );
+		//sleep for 0.5s for the transition to complete
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		l_event2.setValue( 2 );
+		//sleep for 0.5s for the transition to complete
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		l_event3.setValue( 3 );
 		cout<<"Performed transition : Initialise in StateOne -> Eval GuardOne ->  StateTwo -> Eval GuardTwo -> StateThree -> Eval GuardThree -> StateOne"<<endl;
+		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
 	}
-
+	FSM::ShutDown();
 	return 0;
 }
