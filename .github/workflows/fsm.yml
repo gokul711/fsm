@@ -18,4 +18,4 @@ jobs:
     - name: make
       run: make
     - name: exec
-      run: ls -lrth bin/FSMTest
+      run: bin/FSMTest 1

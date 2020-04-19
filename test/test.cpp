@@ -130,7 +130,7 @@ int main(int argc, char ** argv)
 	FSM::Instance().AddTransition(&l_state3, &l_state1, &l_guard3);
 
 	bool l_run = true;
-	while(l_run)
+	while(l_run && ( 1 == argc ))
 	{
 		int i;
 		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
@@ -148,6 +148,13 @@ int main(int argc, char ** argv)
 					l_run  = false;
 					break;
 		}
+	}
+	if ( argc > 1) // Run automated tests for any command line input
+	{		
+		l_event1.setValue( );
+		l_event2.setValue( );
+		l_event3.setValue( );
+		cout<<"Performed transition : Initialise in StateOne -> Eval GuardOne ->  StateTwo -> Eval GuardTwo -> StateThree -> Eval GuardThree -> StateOne"<<endl;
 	}
 
 	return 0;
