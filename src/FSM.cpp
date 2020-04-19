@@ -8,7 +8,6 @@
 #include <FSM.hpp>
 #include <FSM_State.hpp>
 #include <FSM_Guard.hpp>
-#include <FSM_Event_Variable.hpp>
 
 #include <iostream>
 using namespace std;
@@ -30,7 +29,7 @@ FSM::FSM(const std::string& p_smname )
 	m_name = p_smname;
 	m_smThread = nullptr;
 	m_eventOccurred = false;
-	m_eventVar = nullptr;
+	m_eventGuard = nullptr;
 	m_Alive = true;
 }
 bool FSM::Init(const std::string& p_smname)
@@ -64,10 +63,10 @@ void FSM::AddTransition(FSM_State* p_currstate, FSM_State* p_nextstate, FSM_Guar
 	std::pair<FSM_State*, FSM_State* > l_trans = std::make_pair (p_currstate,p_nextstate);
 	m_transitionMap.insert( std::make_pair ( p_transguard, std::make_pair (p_currstate,p_nextstate) ) );
 }
-void FSM::EventVariableUpdated( FSM_Event_Variable * p_eventVar)
+void FSM::EventOccurred( FSM_Guard* p_guard)
 {
 	m_eventOccurred = true;
-	m_eventVar = p_eventVar;
+	m_eventGuard = p_guard;
 	//Unblock SM running thread
 	m_condVar.notify_one();
 }
@@ -100,16 +99,14 @@ void FSM::ShutDown()
 void FSM::PerformTransition( )
 {
 	if ( ( ! m_transitionMap.empty() ) &&
-		 ( nullptr != m_eventVar )
+		 ( nullptr != m_eventGuard )
 	   ) 
 	{
 		bool l_guardCheck = false;
 		std::pair<FSM_State*, FSM_State* > l_transiton2Execute;
 		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* > >::iterator l_transiton2ExecuteItr;
-
-		FSM_Guard * l_guard = m_eventVar->getGuard();
-		l_guardCheck = l_guard->On_Check();
-		l_transiton2ExecuteItr = m_transitionMap.find(l_guard);
+		l_guardCheck = m_eventGuard->On_Check();
+		l_transiton2ExecuteItr = m_transitionMap.find(m_eventGuard);
 		if ( l_guardCheck &&              									  //Short circuit here if Guard evaluation fails
 			 ( l_transiton2ExecuteItr != m_transitionMap.end() )   &&        //Short circuit here if the transition is not defined
 			 ( l_transiton2ExecuteItr->second.first == m_currstate ) 		//Current state is not correct for the transition - Never should evaluate to false. 
@@ -128,7 +125,7 @@ void FSM::PerformTransition( )
 	}
 	//Reset variables
 	m_eventOccurred = false;
-	m_eventVar = nullptr;
+	m_eventGuard = nullptr;
 }
 //Static functions
 FSM& FSM::Instance()

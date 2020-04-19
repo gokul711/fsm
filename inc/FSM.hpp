@@ -17,7 +17,6 @@ namespace fsm
 //Forward declare the classes
 class FSM_State;
 class FSM_Guard;
-class FSM_Event_Variable;
 
 class FSM
 {
@@ -38,7 +37,7 @@ class FSM
 		//Static methods 
 		static void FsmRunningThread( FSM * p_context);
 		//Private data members
-		FSM_Event_Variable * m_eventVar;
+		FSM_Guard* m_eventGuard;
 		FSM_State* m_currstate;
 		std::string m_name;
 		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* >   >  m_transitionMap;
@@ -54,7 +53,7 @@ class FSM
 								FSM_State* p_nextstate, 
 								FSM_Guard * p_transguard
 							);
-			void EventVariableUpdated( FSM_Event_Variable * p_eventVar);
+			void EventOccurred( FSM_Guard* p_guard);
 			//Static methods functions 
 			static bool Init(const std::string& p_smname);
 			static FSM& Instance();
