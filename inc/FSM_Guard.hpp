@@ -1,3 +1,10 @@
+/**
+* Declaration of the FSM guard class
+* @file FSM_Guard.h
+* @author Gokul Krishnan
+*/
+
+
 #pragma once
 
 #include <mutex>

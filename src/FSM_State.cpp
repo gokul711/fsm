@@ -1,3 +1,8 @@
+/**
+* Implementation of the FSM state lass
+* @file FSM_State.cpp
+* @author Gokul Krishnan
+*/
 
 #include <FSM_State.hpp>
 

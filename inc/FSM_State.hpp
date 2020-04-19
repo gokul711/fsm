@@ -1,3 +1,9 @@
+/**
+* Declaration of the FSM state class
+* @file FSM_State.h
+* @author Gokul Krishnan
+*/
+
 #pragma once
 
 #include <mutex>

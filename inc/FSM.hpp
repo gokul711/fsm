@@ -1,3 +1,9 @@
+/**
+* Declaration of the FSM class
+* @file FSM.h
+* @author Gokul Krishnan
+*/
+
 #pragma once
 
 #include <mutex>

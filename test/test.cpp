@@ -1,3 +1,10 @@
+/**
+* Implementation of the FSM test application
+* @file test.cpp
+* @author Gokul Krishnan
+*/
+
+
 #include <FSM.hpp>
 #include <FSM_State.hpp>
 #include <FSM_Guard.hpp>

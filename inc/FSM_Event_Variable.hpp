@@ -1,3 +1,9 @@
+/**
+* Declaration of the FSM event variable class
+* @file FSM_Event_Variable.h
+* @author Gokul Krishnan
+*/
+
 #pragma once
 
 #include <mutex>
