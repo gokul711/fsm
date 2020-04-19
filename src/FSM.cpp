@@ -16,12 +16,18 @@ using namespace std;
 namespace fsm
 {
 FSM * FSM::m_Instance = nullptr;
+std::mutex FSM::m_sync;
+std::condition_variable FSM::m_condVar;
+bool FSM::m_eventOccurred = false;
+std::thread * FSM::m_smThread = nullptr;
+bool FSM::m_Alive = true;
 //Operations
 bool FSM::Init(const std::string& p_smname)
 {
 	try
 	{
 		m_Instance = new FSM( p_smname);
+		m_smThread = new std::thread ( &FSM::FsmRunningThread, m_Instance);
 		return true;
 	}
 	catch(...)
@@ -51,15 +57,24 @@ void FSM::AddTransition(FSM_State* p_currstate, FSM_State* p_nextstate, FSM_Guar
 	std::pair<FSM_State*, FSM_State* > l_trans = std::make_pair (p_currstate,p_nextstate);
 	m_transitionMap.insert( std::make_pair ( p_transguard, std::make_pair (p_currstate,p_nextstate) ) );
 }
-void FSM::EventVariableUpdated( const FSM_Event_Variable * p_eventVar)
+void FSM::EventVariableUpdated( FSM_Event_Variable * p_eventVar)
 {
-	if ( ! m_transitionMap.empty() ) 
+	m_eventOccurred = true;
+	m_eventVar = p_eventVar;
+	//Unblock SM running thread
+	m_condVar.notify_one();
+}
+void FSM::PerformTransition( )
+{
+	if ( ( ! m_transitionMap.empty() ) &&
+		 ( nullptr != m_eventVar )
+	   ) 
 	{
 		bool l_guardCheck = false;
 		std::pair<FSM_State*, FSM_State* > l_transiton2Execute;
 		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* > >::iterator l_transiton2ExecuteItr;
 
-		FSM_Guard * l_guard = p_eventVar->getGuard();
+		FSM_Guard * l_guard = m_eventVar->getGuard();
 		l_guardCheck = l_guard->On_Check();
 		l_transiton2ExecuteItr = m_transitionMap.find(l_guard);
 		if ( l_guardCheck &&              									  //Short circuit here if Guard evaluation fails
@@ -77,6 +92,9 @@ void FSM::EventVariableUpdated( const FSM_Event_Variable * p_eventVar)
 			m_currstate->On_Fail();
 		}
 	}
+	//Reset variables
+	m_eventOccurred = false;
+	m_eventVar = nullptr;
 }
 //Static functions
 FSM& FSM::Instance()

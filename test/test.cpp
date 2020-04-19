@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <thread>
-
+#include <chrono>
 using namespace std;
 using namespace fsm;
 enum Events : int //Always define as int
@@ -140,8 +140,7 @@ int main(int argc, char ** argv)
 	while(l_run && ( 1 == argc ))
 	{
 		int i;
-		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
-		cout<<"Enter state to transition to : \n1. Two \n2. Three \n3. One\n4. Exit"<<endl;
+		cout<<"Enter state to transition to : \n1. Two \n2. Three \n3. One\n4. Current State \n5. Exit"<<endl;
 		cin>>i;
 		switch(i)
 		{
@@ -151,18 +150,26 @@ int main(int argc, char ** argv)
 					break;
 			case 3: l_event3.setValue( );
 					break;
+			case 4: cout<<"Current State : "<<FSM::Instance().getState()<<endl;
+					break;
 			default : 
 					l_run  = false;
 					break;
 		}
 	}
 	if ( argc > 1) // Run automated tests for any command line input
-	{		
+	{	
+		cout<<"Current State : "<<FSM::Instance().getState()<<endl;	
 		l_event1.setValue( );
+		//sleep for 0.5s for the transition to complete
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		l_event2.setValue( );
+		//sleep for 0.5s for the transition to complete
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		l_event3.setValue( );
 		cout<<"Performed transition : Initialise in StateOne -> Eval GuardOne ->  StateTwo -> Eval GuardTwo -> StateThree -> Eval GuardThree -> StateOne"<<endl;
+		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
 	}
-
+	FSM::ShutDown();
 	return 0;
 }
