@@ -124,7 +124,7 @@ int main(int argc, char ** argv)
 	GuardOne l_guard1; //1-2 transition
 	GuardTwo l_guard2; //2-3 transition
 	GuardThree l_guard3; //3-1 transition
-
+/*
 	//Add guard conditions
 	l_event1.AddGuardCondition( &l_guard1 );
 	l_event2.AddGuardCondition( &l_guard2 );
@@ -170,6 +170,8 @@ int main(int argc, char ** argv)
 		cout<<"Performed transition : Initialise in StateOne -> Eval GuardOne ->  StateTwo -> Eval GuardTwo -> StateThree -> Eval GuardThree -> StateOne"<<endl;
 		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
 	}
+*/
 	FSM::ShutDown();
+
 	return 0;
 }

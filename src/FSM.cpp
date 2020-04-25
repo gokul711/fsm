@@ -4,13 +4,10 @@
 * @author Gokul Krishnan
 */
 
-
 #include <FSM.hpp>
 #include <FSM_State.hpp>
 #include <FSM_Guard.hpp>
 
-#include <iostream>
-using namespace std;
 
 namespace fsm
 {
@@ -34,21 +31,29 @@ FSM::FSM(const std::string& p_smname )
 }
 bool FSM::Init(const std::string& p_smname)
 {
-	try
+	if ( nullptr == m_Instance )
 	{
-		m_Instance = new FSM( p_smname);
-		m_smThread = new std::thread ( &FSM::FsmRunningThread, m_Instance);
-		return true;
+		try
+		{
+			m_Instance = new FSM( p_smname);  //Create SM object
+			m_smThread = new std::thread ( &FSM::FsmRunningThread, m_Instance); //Create SM thread
+			return true;
+		}
+		catch(...)
+		{
+			return false;
+		}
 	}
-	catch(...)
-	{
-		return false;
-	}
+	return true;
 	
 }
 std::string FSM::getState() const
 {
 	return m_currstate->getState();
+}
+std::string FSM::getName() const
+{
+	return m_name;
 }
 //Add default ransitions
 void FSM::AddDefault( FSM_State* p_currstate )

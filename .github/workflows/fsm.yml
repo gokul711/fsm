@@ -2,7 +2,9 @@ name: FSM CI
 
 on:
   push:
-    branches: [ master ]
+    branches:    
+      - master         # Push events on master branch
+      - 'feature/**'   # Push events on feature branch
   pull_request:
     branches: [ master ]
 

@@ -48,6 +48,7 @@ class FSM
 	public :
 			//Operations
 			std::string getState() const;
+			std::string getName() const;
 			void AddDefault( FSM_State* p_currstate );
 			void AddTransition(	FSM_State* p_currstate, 
 								FSM_State* p_nextstate, 
