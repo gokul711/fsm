@@ -14,7 +14,7 @@
 #include <thread>
 #include <atomic>
 #include <cstdint>
-
+#include <FSM.hpp> 
 namespace fsm
 {
 //Forward declare the classes
@@ -56,8 +56,20 @@ class EventDispatcher
 			    {
 			    	//keep sending events to SM here
 			    	m_sync.lock();
-					//m_EventQueue.pop( p_data );
+			    	try
+			    	{	
+			    		Typename l_event = m_EventQueue.front();
+			    		m_EventQueue.pop();
+			    		FSM_Guard * l_guard = m_EventMap.at(l_event);
+			    		FSM::Instance().EventOccurred( l_guard , (void*)(this));
+			    	}
+			    	catch(...) //std::out_of_range thrown
+			    	{
+						//Failure. Event-Guard mapping not present. Skip this event
+			    		continue;
+			    	}
 					m_sync.unlock();
+					
 			    }
 			    //Event queue is empty. Set event occurence to false
 			    m_eventOccurred.store(false);
@@ -80,6 +92,7 @@ class EventDispatcher
 				m_eventOccurred.store(true);
 				m_CondVar.notify_one();
 				m_eventThread->join();
+				delete m_eventThread;
 			}
 			void AddEventToEventQueue( const Typename& p_data )
 			{
@@ -92,6 +105,12 @@ class EventDispatcher
 					m_eventOccurred.store(true);
 					m_CondVar.notify_one();
 				}
+			}
+			void AddToEventMap( const Typename& p_data, FSM_Guard * p_guard )
+			{
+				m_sync.lock();
+				m_EventMap.insert(std::make_pair( p_data, p_guard ));
+				m_sync.unlock();
 			}
 	
 };

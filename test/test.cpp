@@ -76,7 +76,7 @@ class StateThree : public FSM_State
 class GuardOne : public FSM_Guard
 {
 	public :
-			bool On_Check() 
+			bool On_Check(void * p_dispatcher) 
 			{
 				cout<<"GuardOne::On_Check"<<endl;
 				return true;
@@ -86,7 +86,7 @@ class GuardOne : public FSM_Guard
 class GuardTwo : public FSM_Guard
 {
 	public :
-			bool On_Check() 
+			bool On_Check(void * p_dispatcher) 
 			{
 				cout<<"GuardTwo::On_Check"<<endl;
 				return true;
@@ -96,7 +96,7 @@ class GuardTwo : public FSM_Guard
 class GuardThree : public FSM_Guard
 {
 	public :
-			bool On_Check() 
+			bool On_Check(void * p_dispatcher) 
 			{
 				cout<<"GuardThree::On_Check"<<endl;
 				return true;

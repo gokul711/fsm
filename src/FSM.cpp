@@ -27,6 +27,7 @@ FSM::FSM(const std::string& p_smname )
 	m_smThread = nullptr;
 	m_eventOccurred = false;
 	m_eventGuard = nullptr;
+	m_dispatcher = nullptr;
 	m_Alive = true;
 }
 bool FSM::Init(const std::string& p_smname)
@@ -68,10 +69,11 @@ void FSM::AddTransition(FSM_State* p_currstate, FSM_State* p_nextstate, FSM_Guar
 	std::pair<FSM_State*, FSM_State* > l_trans = std::make_pair (p_currstate,p_nextstate);
 	m_transitionMap.insert( std::make_pair ( p_transguard, std::make_pair (p_currstate,p_nextstate) ) );
 }
-void FSM::EventOccurred( FSM_Guard* p_guard)
+void FSM::EventOccurred( FSM_Guard* p_guard, void* p_dispatcher)
 {
 	m_eventOccurred = true;
 	m_eventGuard = p_guard;
+	m_dispatcher = p_dispatcher;
 	//Unblock SM running thread
 	m_condVar.notify_one();
 }
@@ -110,7 +112,7 @@ void FSM::PerformTransition( )
 		bool l_guardCheck = false;
 		std::pair<FSM_State*, FSM_State* > l_transiton2Execute;
 		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* > >::iterator l_transiton2ExecuteItr;
-		l_guardCheck = m_eventGuard->On_Check();
+		l_guardCheck = m_eventGuard->On_Check( m_dispatcher );
 		l_transiton2ExecuteItr = m_transitionMap.find(m_eventGuard);
 		if ( l_guardCheck &&              									  //Short circuit here if Guard evaluation fails
 			 ( l_transiton2ExecuteItr != m_transitionMap.end() )   &&        //Short circuit here if the transition is not defined
@@ -131,6 +133,7 @@ void FSM::PerformTransition( )
 	//Reset variables
 	m_eventOccurred = false;
 	m_eventGuard = nullptr;
+	m_dispatcher = nullptr;
 }
 //Static functions
 FSM& FSM::Instance()

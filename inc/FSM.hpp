@@ -39,6 +39,7 @@ class FSM
 		//Private data members
 		FSM_Guard* m_eventGuard;
 		FSM_State* m_currstate;
+		void* m_dispatcher;
 		std::string m_name;
 		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* >   >  m_transitionMap;
 		//Private methods
@@ -54,7 +55,7 @@ class FSM
 								FSM_State* p_nextstate, 
 								FSM_Guard * p_transguard
 							);
-			void EventOccurred( FSM_Guard* p_guard);
+			void EventOccurred( FSM_Guard* p_guard, void* p_dispatcher);
 			//Static methods functions 
 			static bool Init(const std::string& p_smname);
 			static FSM& Instance();

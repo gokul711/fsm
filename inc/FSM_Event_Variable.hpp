@@ -12,6 +12,7 @@
 #include <Event.hpp>
 namespace fsm
 {
+class FSM_Guard;
 //Actual type must have overload of ==  and = operators.Defaults to char
 template <class Typename = uint8_t >
 class FSM_Event_Variable
@@ -24,12 +25,19 @@ class FSM_Event_Variable
 		FSM_Event_Variable& operator=(const FSM_Event_Variable& p_obj) = delete;
 		bool operator==(const FSM_Event_Variable& p_obj) = delete;
 		EventDispatcher<Typename> * m_eventDispatcher;
+
+		FSM_Guard* m_guard;
 	protected :
 		
 	public :
 			FSM_Event_Variable ( )
 			{
 				m_eventDispatcher = new EventDispatcher<Typename>;
+			}
+			~FSM_Event_Variable()
+			{
+				m_eventDispatcher->ExitDispatcherThread();
+				delete m_eventDispatcher;
 			}
 			void setValue(  const Typename& p_data )
 			{
@@ -40,9 +48,17 @@ class FSM_Event_Variable
 				}
 				
 			}
-			Typename& getValue( )
+			Typename& getValue( ) const 
 			{
 				return m_data;
 			}	
+			void AddGuardCondition(FSM_Guard * p_guard)
+			{
+				m_guard = p_guard;
+			}
+			EventDispatcher<Typename>* getEventDispatcher() const 
+			{
+				return m_eventDispatcher;
+			}
 };
 }
