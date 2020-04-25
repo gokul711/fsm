@@ -13,7 +13,7 @@
 namespace fsm
 {
 class FSM_Guard;
-//Actual type must have overload of ==  and = operators.Defaults to char
+//Actual type must have overload of ==, !=   and = operators.Defaults to char
 template <class Typename = uint8_t >
 class FSM_Event_Variable
 {
