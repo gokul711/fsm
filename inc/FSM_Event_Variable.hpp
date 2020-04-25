@@ -48,13 +48,14 @@ class FSM_Event_Variable
 				}
 				
 			}
-			Typename& getValue( ) const 
+			Typename& getValue( ) 
 			{
 				return m_data;
 			}	
-			void AddGuardCondition(FSM_Guard * p_guard)
+			void AddGuardCondition(const Typename& p_data, FSM_Guard * p_guard)
 			{
 				m_guard = p_guard;
+				m_eventDispatcher->AddToEventMap(p_data, p_guard);
 			}
 			EventDispatcher<Typename>* getEventDispatcher() const 
 			{

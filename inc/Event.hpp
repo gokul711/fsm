@@ -15,6 +15,9 @@
 #include <atomic>
 #include <cstdint>
 #include <FSM.hpp> 
+
+#include <iostream>
+using namespace std;
 namespace fsm
 {
 //Forward declare the classes
@@ -61,10 +64,12 @@ class EventDispatcher
 			    		Typename l_event = m_EventQueue.front();
 			    		m_EventQueue.pop();
 			    		FSM_Guard * l_guard = m_EventMap.at(l_event);
+			    		cout<<"Here :"<<__FILE__<<" Line : "<<__LINE__<<endl;
 			    		FSM::Instance().EventOccurred( l_guard , (void*)(this));
 			    	}
 			    	catch(...) //std::out_of_range thrown
 			    	{
+						cout<<"Guard not found"<<endl;
 						//Failure. Event-Guard mapping not present. Skip this event
 			    		continue;
 			    	}
@@ -108,6 +113,7 @@ class EventDispatcher
 			}
 			void AddToEventMap( const Typename& p_data, FSM_Guard * p_guard )
 			{
+				cout<<"Here :"<<__FILE__<<" Line : "<<__LINE__<<endl;
 				m_sync.lock();
 				m_EventMap.insert(std::make_pair( p_data, p_guard ));
 				m_sync.unlock();

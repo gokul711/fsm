@@ -15,140 +15,161 @@
 #include <chrono>
 using namespace std;
 using namespace fsm;
-enum Events : int //Always define as int
+
+//Events
+enum InputEvent
 {
-	ONE, //Atleast one event is required 
-	TWO,
-	THREE,
-	LAST // Mandatory. No event variable should be created
+INTEGER,
+CHARACTER,
+SYMBOL,
+GENERIC
 };
 
+//Create event variables
+FSM_Event_Variable<InputEvent> event;
 //States
-class StateOne : public FSM_State
+class StateInt : public FSM_State
 {
 	public :
-			StateOne():FSM_State("StateOne")
+			StateInt():FSM_State("StateInt")
 			{
 
 			}
 			virtual void On_Execute() 
 			{
-				cout<<"StateOne::On_Execute"<<endl;
+				cout<<"StateInt::On_Execute"<<endl;
 			}
 			virtual void On_Fail ( ) 
 			{
-				cout<<"State transition failed"<<endl;
+				cout<<"State transition attempt failed"<<endl;
 			}
 };
-class StateTwo : public FSM_State
+class StateChar : public FSM_State
 {
 	public :
-			StateTwo():FSM_State("StateTwo")
+			StateChar():FSM_State("StateChar")
 			{
 
 			}
 			virtual void On_Execute() 
 			{
-				cout<<"StateTwo::On_Execute"<<endl;
+				cout<<"StateChar::On_Execute"<<endl;
 			}
 			virtual void On_Fail ( ) 
 			{
-				cout<<"State transition failed"<<endl;
+				cout<<"State transition attempt failed"<<endl;
 			}
 };
-class StateThree : public FSM_State
+class StateSymbol : public FSM_State
 {
 	public :
-			StateThree():FSM_State("StateThree")
+			StateSymbol():FSM_State("StateSymbol")
 			{
 
 			}
 			virtual void On_Execute() 
 			{
-				cout<<"StateThree::On_Execute"<<endl;
+				cout<<"StateSymbol::On_Execute"<<endl;
 			}
 			virtual void On_Fail ( ) 
 			{
-				cout<<"State transition failed"<<endl;
+				cout<<"State transition attempt failed"<<endl;
 			}
 };
 //Guards
-class GuardOne : public FSM_Guard
+class GuardCommon : public FSM_Guard
 {
 	public :
 			bool On_Check(void * p_dispatcher) 
 			{
 				cout<<"GuardOne::On_Check"<<endl;
-				return true;
+				bool l_ret = false;
+				if ( p_dispatcher == (void*)(::event.getEventDispatcher()))
+				{
+					cout<<"Guard function called by InputEvent"<<endl;
+					string curr = FSM::Instance().getState();
+					if (  ("StateInt" != curr ) && 
+						  ( InputEvent::INTEGER == ::event.getValue() ) 
+					   )
+					{
+						l_ret = true;
+						cout<<"Guard evaluation success"<<endl;
+					}
+					else if (  ("StateChar" != curr ) && 
+						  ( InputEvent::CHARACTER == ::event.getValue() ) 
+					   )
+					{
+						l_ret = true;
+						cout<<"Guard evaluation success"<<endl;
+					}
+					else if (  ("StateSymbol" != curr ) && 
+						  ( InputEvent::SYMBOL == ::event.getValue() ) 
+					   )
+					{
+						l_ret = true;
+						cout<<"Guard evaluation success"<<endl;
+					}
+					else
+					{
+						cout<<"Guard evaluation failed"<<endl;
+					} 
+				}
+				else
+				{
+					cout<<"Unknown event"<<endl;
+				}
+				return l_ret;
 			}
 };
 
-class GuardTwo : public FSM_Guard
-{
-	public :
-			bool On_Check(void * p_dispatcher) 
-			{
-				cout<<"GuardTwo::On_Check"<<endl;
-				return true;
-			}
-};
-
-class GuardThree : public FSM_Guard
-{
-	public :
-			bool On_Check(void * p_dispatcher) 
-			{
-				cout<<"GuardThree::On_Check"<<endl;
-				return true;
-			}
-};
 int main(int argc, char ** argv)
 {
 	//Create the state machine
 	FSM::Init("FSM_Test");
 
 	//Create the states
-	StateOne l_state1;
-	StateTwo l_state2;
-	StateThree l_state3;
+	StateInt i;;
+	StateChar c;
+	StateSymbol s;
 
 	//Add default state
-	FSM::Instance().AddDefault( &l_state1 );
-
-	//Create event variables
-	FSM_Event_Variable<int> l_event1;//1-2 transition
-	FSM_Event_Variable<int> l_event2;//2-3 transition
-	FSM_Event_Variable<int> l_event3;//3-1 transition
+	FSM::Instance().AddDefault( &i );
 
 	//Create guards
-	GuardOne l_guard1; //1-2 transition
-	GuardTwo l_guard2; //2-3 transition
-	GuardThree l_guard3; //3-1 transition
-/*
-	//Add guard conditions
-	l_event1.AddGuardCondition( &l_guard1 );
-	l_event2.AddGuardCondition( &l_guard2 );
-	l_event3.AddGuardCondition( &l_guard3 );
-
-
+	GuardCommon guardc; 
+	//Add guards for each event
+	event.AddGuardCondition( InputEvent::INTEGER, &guardc);
+	event.AddGuardCondition( InputEvent::CHARACTER, &guardc);
+	event.AddGuardCondition( InputEvent::SYMBOL, &guardc);
+	event.AddGuardCondition( InputEvent::GENERIC, &guardc);
 	//Add transitions
-	FSM::Instance().AddTransition(&l_state1, &l_state2, &l_guard1);
-	FSM::Instance().AddTransition(&l_state2, &l_state3, &l_guard2);
-	FSM::Instance().AddTransition(&l_state3, &l_state1, &l_guard3);
+	FSM::Instance().AddTransition(&i, &c, &guardc);
+	FSM::Instance().AddTransition(&c, &s, &guardc);
+	FSM::Instance().AddTransition(&s, &i, &guardc);
+
 
 	bool l_run = true;
 	while(l_run && ( 1 == argc ))
 	{
 		int i;
-		cout<<"Enter state to transition to : \n1. Two \n2. Three \n3. One\n4. Current State \n5. Exit"<<endl;
+		cout<<"Enter choice to generate event : \n1. Interger \n2. Character  \n3. Symbol \n4. Current State \n5. Exit"<<endl;
 		cin>>i;
 		switch(i)
 		{
-			case 1: l_event1.setValue( 1 );
+			case 1: /*cout<<"Enter value : "<<endl;
+					int ival;
+					cin>>ival;*/
+					event.setValue( InputEvent::INTEGER );
 					break;
-			case 2: l_event2.setValue( 2 );
+			case 2: /*cout<<"Enter value : "<<endl;
+					char cval;
+					cin>>cval;*/
+					event.setValue( InputEvent::CHARACTER );
 					break;
-			case 3: l_event3.setValue( 3 );
+			case 3: /*cout<<"Enter value : "<<endl;
+					char sval;
+					cin>>sval;*/
+					event.setValue( InputEvent::SYMBOL );
 					break;
 			case 4: cout<<"Current State : "<<FSM::Instance().getState()<<endl;
 					break;
@@ -159,18 +180,9 @@ int main(int argc, char ** argv)
 	}
 	if ( argc > 1) // Run automated tests for any command line input
 	{	
-		cout<<"Current State : "<<FSM::Instance().getState()<<endl;	
-		l_event1.setValue( 1 );
-		//sleep for 0.5s for the transition to complete
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		l_event2.setValue( 2 );
-		//sleep for 0.5s for the transition to complete
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		l_event3.setValue( 3 );
-		cout<<"Performed transition : Initialise in StateOne -> Eval GuardOne ->  StateTwo -> Eval GuardTwo -> StateThree -> Eval GuardThree -> StateOne"<<endl;
-		cout<<"Current State : "<<FSM::Instance().getState()<<endl;
+
 	}
-*/
+
 	FSM::ShutDown();
 
 	return 0;
