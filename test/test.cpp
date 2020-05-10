@@ -112,7 +112,7 @@ class GenericGuard : public FSM_Guard
 				{
 					cout<<"Guard function called by Integer event"<<endl;
 					string curr = FSM::Instance().getState();
-					if (  ("StateInt" != curr ) 
+					if (  ("StateSymbol" == curr ) 
 					   )
 					{
 						l_ret = true;
@@ -127,7 +127,7 @@ class GenericGuard : public FSM_Guard
 				{
 					cout<<"Guard function called by Character event"<<endl;
 					string curr = FSM::Instance().getState();
-					if (  ("StateChar" != curr ) 
+					if (  ("StateInt" == curr ) 
 					   )
 					{
 						l_ret = true;
@@ -142,7 +142,7 @@ class GenericGuard : public FSM_Guard
 				{
 					cout<<"Guard function called by Symbol event"<<endl;
 					string curr = FSM::Instance().getState();
-					if (  ("StateSymbol" != curr ) 
+					if (  ("StateChar" == curr ) 
 					   )
 					{
 						l_ret = true;
