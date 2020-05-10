@@ -217,7 +217,7 @@ int main(int argc, char ** argv)
 					break;
 		}
 	}
-	if ( argc > 1) // Run automated tests for any command line input
+	if ( argc > 1) // Run and exit 
 	{	
 
 	}

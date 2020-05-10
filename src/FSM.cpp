@@ -146,6 +146,8 @@ void FSM::PerformTransition( )
 		}
 		else
 		{
+			FSM_LOG_WRITE("State Transition failed");
+			FSM_LOG_WRITE("Attempted transition : ", m_currstate->getState(), "->", l_transiton2ExecuteItr->second.second->getState() );
 			m_currstate->On_Fail();
 		}
 	}
