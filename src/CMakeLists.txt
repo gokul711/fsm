@@ -3,9 +3,9 @@
 # ============================================================================
 
 set(${PROJECT_NAME}_SRC_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Event.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/FSM.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/FSM_State.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/FSM_Event_Variable.cpp
 )
 
 # ============================================================================

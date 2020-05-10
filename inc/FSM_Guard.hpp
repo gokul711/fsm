@@ -12,7 +12,7 @@
 
 namespace fsm
 {
-
+	
 class FSM_Guard
 {
 	private:
@@ -28,7 +28,7 @@ class FSM_Guard
 				
 			}
 			//Operations
-			virtual bool On_Check() = 0;
+			virtual bool On_Check(void * p_dispatcher) = 0;
 	
 };
 }
