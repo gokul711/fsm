@@ -7,7 +7,7 @@
 #include <FSM.hpp>
 #include <FSM_State.hpp>
 #include <FSM_Guard.hpp>
-
+#include <algorithm>
 
 namespace fsm
 {
@@ -48,21 +48,22 @@ bool FSM::Init(const std::string& p_smname)
 			return false;
 		}
 	}
-	return true;
 	FSM_LOG_FUNC_EXIT( );
-	
+	return true;
 }
 std::string FSM::getState() const
 {
 	FSM_LOG_FUNC_ENTER( );
-	return m_currstate->getState();
 	FSM_LOG_FUNC_EXIT( );
+	return m_currstate->getState();
+	
 }
 std::string FSM::getName() const
 {
 	FSM_LOG_FUNC_ENTER( );
-	return m_name;
 	FSM_LOG_FUNC_EXIT( );
+	return m_name;
+	
 }
 //Add default ransitions
 void FSM::AddDefault( FSM_State* p_currstate )
@@ -128,27 +129,20 @@ void FSM::PerformTransition( )
 		 ( nullptr != m_eventGuard )
 	   ) 
 	{
-		bool l_guardCheck = false;
-		std::pair<FSM_State*, FSM_State* > l_transiton2Execute;
-		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* > >::iterator l_transiton2ExecuteItr;
-		l_guardCheck = m_eventGuard->On_Check( m_dispatcher );
-		l_transiton2ExecuteItr = m_transitionMap.find(m_eventGuard);
-		if ( l_guardCheck &&              									  //Short circuit here if Guard evaluation fails
-			 ( l_transiton2ExecuteItr != m_transitionMap.end() )   &&        //Short circuit here if the transition is not defined
-			 ( l_transiton2ExecuteItr->second.first == m_currstate ) 		//Current state is not correct for the transition - Never should evaluate to false. 
-			 															   //Guard should evaluate false if the states are not correct
-		   )
+		std::unordered_map <FSM_Guard* , std::pair<FSM_State*, FSM_State* > >::iterator l_transiton2ExecuteItr;
+		auto l_range = m_transitionMap.equal_range(m_eventGuard);
+		for ( l_transiton2ExecuteItr = l_range.first; l_transiton2ExecuteItr != l_range.second; l_transiton2ExecuteItr++)
 		{
-			m_currstate = l_transiton2ExecuteItr->second.second;
-			m_currstate->On_Entry();
-			m_currstate->On_Execute();
-			m_currstate->On_Exit();
-		}
-		else
-		{
-			FSM_LOG_WRITE("State Transition failed");
-			FSM_LOG_WRITE("Attempted transition : ", m_currstate->getState(), "->", l_transiton2ExecuteItr->second.second->getState() );
-			m_currstate->On_Fail();
+			if ( ( l_transiton2ExecuteItr->second.first == m_currstate ) &&
+				 ( l_transiton2ExecuteItr->first->On_Check( m_dispatcher ) )
+			   )
+			{
+				m_currstate = l_transiton2ExecuteItr->second.second;
+				m_currstate->On_Entry();
+				m_currstate->On_Execute();
+				m_currstate->On_Exit();
+				break;
+			}
 		}
 	}
 	//Reset variables

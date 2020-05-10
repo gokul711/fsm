@@ -49,19 +49,17 @@ class FSM_Event_Variable
 			{
 
 				FSM_LOG_FUNC_ENTER(   );
-				if ( m_data != p_data )
-				{
-					m_data = p_data;
-					m_eventDispatcher->AddEventToEventQueue( m_data );
-				}
+				m_data = p_data;
+				m_eventDispatcher->AddEventToEventQueue( m_data );
 				FSM_LOG_FUNC_EXIT( );
 				
 			}
 			Typename& getValue( ) 
 			{
 				FSM_LOG_FUNC_ENTER(   );
-				return m_data;
 				FSM_LOG_FUNC_EXIT( );
+				return m_data;
+				
 			}	
 			void AddGuardCondition(const Typename& p_data, FSM_Guard * p_guard)
 			{
@@ -73,8 +71,9 @@ class FSM_Event_Variable
 			EventDispatcher<Typename>* getEventDispatcher() const 
 			{
 				FSM_LOG_FUNC_ENTER(   );
-				return m_eventDispatcher;
 				FSM_LOG_FUNC_EXIT( );
+				return m_eventDispatcher;
+				
 			}
 };
 }

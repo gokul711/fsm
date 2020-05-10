@@ -17,7 +17,7 @@ using namespace std;
 using namespace fsm;
 
 //Events
-enum IntegerEvent
+enum class IntegerEvent
 {
 ZERO, // Unused - 0 valuae
 ONE,
@@ -27,7 +27,7 @@ FOUR
 };
 
 //Events
-enum CharacterEvent
+enum class CharacterEvent
 {
 UNDEF, //Undefined 0 value
 AA,
@@ -37,7 +37,7 @@ DE
 };
 
 //Events
-enum SymbolEvent
+enum class SymbolEvent
 {
 NOSYMBOL, //Undefined 0 value
 AT,

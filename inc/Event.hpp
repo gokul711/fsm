@@ -38,7 +38,7 @@ class EventDispatcher
 		std::string m_name;
 		std::thread * m_eventThread;
 		std::queue<Typename> m_EventQueue; 
-		std::map<Typename, FSM_Guard * > m_EventMap;
+		std::unordered_map<Typename, FSM_Guard * > m_EventMap;
 		std::mutex m_sync;
 		std::mutex m_wait;
 		std::condition_variable m_CondVar;
@@ -66,7 +66,7 @@ class EventDispatcher
 			    	}
 			    	catch(...) //std::out_of_range thrown
 			    	{
-						cout<<"Guard not found. Ignoring event"<<endl;
+						FSM_LOG_WRITE ("Guard not found. Ignoring event");
 						//Failure. Event-Guard mapping not present. Skip this event
 			    		continue;
 			    	}

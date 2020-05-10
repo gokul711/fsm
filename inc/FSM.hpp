@@ -9,7 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <thread>
 #include <Log.hpp>
 
@@ -42,7 +42,7 @@ class FSM
 		FSM_State* m_currstate;
 		void* m_dispatcher;
 		std::string m_name;
-		std::map <FSM_Guard* , std::pair<FSM_State*, FSM_State* >   >  m_transitionMap;
+		std::unordered_multimap <FSM_Guard* , std::pair<FSM_State*, FSM_State* >   >  m_transitionMap;
 		//Private methods
 		void PerformTransition( );
 	protected :

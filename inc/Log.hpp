@@ -1,6 +1,6 @@
 /**
-* Declaration of the the event handler class
-* @file Event.h
+* Helper macros for logging
+* @file Log.hpp
 * @author Gokul Krishnan
 */
 
@@ -40,15 +40,6 @@ std::string getLogMessageToStdOut( Type msg )
    {
    		return msg;
    }
-   /* std::string l_msg;
-    std::string l_fname(fileName);
-    size_t l_pos = l_fname.find_last_of('/');
-    
-    for( auto elem : list )
-    {
-         l_msg += elem;
-    }
-    cout<<endl<<l_fname.substr(l_pos+1)<<" : "<<functionName <<" : "<<line<<" "<<l_msg<<endl;*/
 }
 
 template <typename Type, typename... Args>
@@ -70,6 +61,5 @@ void fsmWriteLogMessageToStdOut( int line, const char * functionName, const char
     std::string l_msg = getLogMessageToStdOut ( msg1, args...);
     std::string l_fname(fileName);
     size_t l_pos = l_fname.find_last_of('/');
-
     cout<<endl<<l_fname.substr(l_pos+1)<<" : "<<functionName <<" : "<<line<<" "<<l_msg<<endl;
 }
