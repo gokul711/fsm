@@ -17,16 +17,40 @@ using namespace std;
 using namespace fsm;
 
 //Events
-enum InputEvent
+enum IntegerEvent
 {
-INTEGER,
-CHARACTER,
-SYMBOL,
-GENERIC
+ZERO, // Unused - 0 valuae
+ONE,
+TWO,
+THREE,
+FOUR
 };
 
+//Events
+enum CharacterEvent
+{
+UNDEF, //Undefined 0 value
+AA,
+BE,
+CE,
+DE
+};
+
+//Events
+enum SymbolEvent
+{
+NOSYMBOL, //Undefined 0 value
+AT,
+HASH,
+DOLLAR,
+AND
+};
+
+
 //Create event variables
-FSM_Event_Variable<InputEvent> event;
+FSM_Event_Variable<IntegerEvent> eventVariableInteger;
+FSM_Event_Variable<CharacterEvent> eventVariableCharacter;
+FSM_Event_Variable<SymbolEvent> eventVariableSymbol;
 //States
 class StateInt : public FSM_State
 {
@@ -77,19 +101,48 @@ class StateSymbol : public FSM_State
 			}
 };
 //Guards
-class GuardInteger2Character : public FSM_Guard
+class GenericGuard : public FSM_Guard
 {
 	public :
 			bool On_Check(void * p_dispatcher) 
 			{
-				cout<<"GuardInteger2Character::On_Check"<<endl;
+				cout<<"GenericGuard::On_Check"<<endl;
 				bool l_ret = false;
-				if ( p_dispatcher == (void*)(::event.getEventDispatcher()))
+				if ( p_dispatcher == (void*)(::eventVariableInteger.getEventDispatcher()))
 				{
-					cout<<"Guard function called by InputEvent"<<endl;
+					cout<<"Guard function called by Integer event"<<endl;
 					string curr = FSM::Instance().getState();
-					if (  ("StateInt" == curr ) && 
-						  ( InputEvent::CHARACTER == ::event.getValue() ) 
+					if (  ("StateInt" != curr ) 
+					   )
+					{
+						l_ret = true;
+						cout<<"Guard evaluation success"<<endl;
+					}
+					else
+					{
+						cout<<"Guard evaluation failed"<<endl;
+					} 
+				}
+				else if ( p_dispatcher == (void*)(::eventVariableCharacter.getEventDispatcher()))
+				{
+					cout<<"Guard function called by Character event"<<endl;
+					string curr = FSM::Instance().getState();
+					if (  ("StateChar" != curr ) 
+					   )
+					{
+						l_ret = true;
+						cout<<"Guard evaluation success"<<endl;
+					}
+					else
+					{
+						cout<<"Guard evaluation failed"<<endl;
+					} 
+				}
+				else if ( p_dispatcher == (void*)(::eventVariableSymbol.getEventDispatcher()))
+				{
+					cout<<"Guard function called by Symbol event"<<endl;
+					string curr = FSM::Instance().getState();
+					if (  ("StateSymbol" != curr ) 
 					   )
 					{
 						l_ret = true;
@@ -107,66 +160,7 @@ class GuardInteger2Character : public FSM_Guard
 				return l_ret;
 			}
 };
-class GuardCharacter2Symbol : public FSM_Guard
-{
-	public :
-			bool On_Check(void * p_dispatcher) 
-			{
-				cout<<"GuardCharacter2Symbol::On_Check"<<endl;
-				bool l_ret = false;
-				if ( p_dispatcher == (void*)(::event.getEventDispatcher()))
-				{
-					cout<<"Guard function called by InputEvent"<<endl;
-					string curr = FSM::Instance().getState();
-					if (  ("StateChar" == curr ) && 
-						  ( InputEvent::SYMBOL == ::event.getValue() ) 
-					   )
-					{
-						l_ret = true;
-						cout<<"Guard evaluation success"<<endl;
-					}
-					else
-					{
-						cout<<"Guard evaluation failed"<<endl;
-					} 
-				}
-				else
-				{
-					cout<<"Unknown event"<<endl;
-				}
-				return l_ret;
-			}
-};
-class GuardSymbol2Integer : public FSM_Guard
-{
-	public :
-			bool On_Check(void * p_dispatcher) 
-			{
-				cout<<"GuardSymbol2Integer::On_Check"<<endl;
-				bool l_ret = false;
-				if ( p_dispatcher == (void*)(::event.getEventDispatcher()))
-				{
-					cout<<"Guard function called by InputEvent"<<endl;
-					string curr = FSM::Instance().getState();
-					if (  ("StateSymbol" == curr ) && 
-						  ( InputEvent::INTEGER == ::event.getValue() ) 
-					   )
-					{
-						l_ret = true;
-						cout<<"Guard evaluation success"<<endl;
-					}
-					else
-					{
-						cout<<"Guard evaluation failed"<<endl;
-					} 
-				}
-				else
-				{
-					cout<<"Unknown event"<<endl;
-				}
-				return l_ret;
-			}
-};
+
 int main(int argc, char ** argv)
 {
 	//Create the state machine
@@ -181,18 +175,16 @@ int main(int argc, char ** argv)
 	FSM::Instance().AddDefault( &i );
 
 	//Create guards
-	GuardInteger2Character guardi2c; 
-	GuardCharacter2Symbol guardc2s; 
-	GuardSymbol2Integer guards2i; 
+	GenericGuard g1;
 	//Add guards for each event
-	event.AddGuardCondition( InputEvent::INTEGER, &guards2i);
-	event.AddGuardCondition( InputEvent::CHARACTER, &guardi2c);
-	event.AddGuardCondition( InputEvent::SYMBOL, &guardc2s);
+	eventVariableInteger.AddGuardCondition( IntegerEvent::ONE, &g1);
+	eventVariableCharacter.AddGuardCondition( CharacterEvent::AA, &g1);
+	eventVariableSymbol.AddGuardCondition( SymbolEvent::HASH, &g1);
 
 	//Add transitions
-	FSM::Instance().AddTransition(&i, &c, &guardi2c);
-	FSM::Instance().AddTransition(&c, &s, &guardc2s);
-	FSM::Instance().AddTransition(&s, &i, &guards2i);
+	FSM::Instance().AddTransition(&i, &c, &g1);
+	FSM::Instance().AddTransition(&c, &s, &g1);
+	FSM::Instance().AddTransition(&s, &i, &g1);
 
 
 	bool l_run = true;
@@ -203,20 +195,20 @@ int main(int argc, char ** argv)
 		cin>>i;
 		switch(i)
 		{
-			case 1: /*cout<<"Enter value : "<<endl;
+			case 1: cout<<"Enter value : "<<endl;
 					int ival;
-					cin>>ival;*/
-					event.setValue( InputEvent::INTEGER );
+					cin>>ival;
+					eventVariableInteger.setValue( IntegerEvent::ONE );
 					break;
-			case 2: /*cout<<"Enter value : "<<endl;
+			case 2: cout<<"Enter value : "<<endl;
 					char cval;
-					cin>>cval;*/
-					event.setValue( InputEvent::CHARACTER );
+					cin>>cval;
+					eventVariableCharacter.setValue( CharacterEvent::AA );
 					break;
-			case 3: /*cout<<"Enter value : "<<endl;
+			case 3: cout<<"Enter value : "<<endl;
 					char sval;
-					cin>>sval;*/
-					event.setValue( InputEvent::SYMBOL );
+					cin>>sval;
+					eventVariableSymbol.setValue( SymbolEvent::HASH );
 					break;
 			case 4: cout<<"Current State : "<<FSM::Instance().getState()<<endl;
 					break;

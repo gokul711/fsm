@@ -16,8 +16,6 @@
 #include <cstdint>
 #include <FSM.hpp> 
 
-#include <iostream>
-using namespace std;
 namespace fsm
 {
 //Forward declare the classes
@@ -68,7 +66,7 @@ class EventDispatcher
 			    	}
 			    	catch(...) //std::out_of_range thrown
 			    	{
-						cout<<"Guard not found"<<endl;
+						cout<<"Guard not found. Ignoring event"<<endl;
 						//Failure. Event-Guard mapping not present. Skip this event
 			    		continue;
 			    	}

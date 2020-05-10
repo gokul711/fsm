@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <thread>
+#include <Log.hpp>
 
 namespace fsm
 {

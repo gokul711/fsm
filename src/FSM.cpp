@@ -22,6 +22,7 @@ bool FSM::m_Alive = true;
 //Constructor is private. Always create via Init 
 FSM::FSM(const std::string& p_smname )
 {
+	FSM_LOG_FUNC_ENTER( );
 	m_currstate = nullptr;
 	m_name = p_smname;
 	m_smThread = nullptr;
@@ -29,9 +30,11 @@ FSM::FSM(const std::string& p_smname )
 	m_eventGuard = nullptr;
 	m_dispatcher = nullptr;
 	m_Alive = true;
+	FSM_LOG_FUNC_EXIT( );
 }
 bool FSM::Init(const std::string& p_smname)
 {
+	FSM_LOG_FUNC_ENTER( );
 	if ( nullptr == m_Instance )
 	{
 		try
@@ -46,40 +49,52 @@ bool FSM::Init(const std::string& p_smname)
 		}
 	}
 	return true;
+	FSM_LOG_FUNC_EXIT( );
 	
 }
 std::string FSM::getState() const
 {
+	FSM_LOG_FUNC_ENTER( );
 	return m_currstate->getState();
+	FSM_LOG_FUNC_EXIT( );
 }
 std::string FSM::getName() const
 {
+	FSM_LOG_FUNC_ENTER( );
 	return m_name;
+	FSM_LOG_FUNC_EXIT( );
 }
 //Add default ransitions
 void FSM::AddDefault( FSM_State* p_currstate )
 {
+	FSM_LOG_FUNC_ENTER( );
 	m_currstate = p_currstate;
 	m_currstate->On_Entry();
 	m_currstate->On_Execute();
 	m_currstate->On_Exit();
+	FSM_LOG_FUNC_EXIT( );
 }
 void FSM::AddTransition(FSM_State* p_currstate, FSM_State* p_nextstate, FSM_Guard * p_transguard)
 {
+	FSM_LOG_FUNC_ENTER( );
 	std::pair<FSM_State*, FSM_State* > l_trans = std::make_pair (p_currstate,p_nextstate);
 	m_transitionMap.insert( std::make_pair ( p_transguard, std::make_pair (p_currstate,p_nextstate) ) );
+	FSM_LOG_FUNC_EXIT( );
 }
 void FSM::EventOccurred( FSM_Guard* p_guard, void* p_dispatcher)
 {
+	FSM_LOG_FUNC_ENTER( );
 	m_eventOccurred = true;
 	m_eventGuard = p_guard;
 	m_dispatcher = p_dispatcher;
 	//Unblock SM running thread
 	m_condVar.notify_one();
+	FSM_LOG_FUNC_EXIT( );
 }
 //FSM running thread function
 void FSM::FsmRunningThread( FSM * p_context)
 {
+	FSM_LOG_FUNC_ENTER( );
 	//Run while alive
 	while(m_Alive)
 	{
@@ -88,9 +103,11 @@ void FSM::FsmRunningThread( FSM * p_context)
 	    m_condVar.wait(lk, []{return m_eventOccurred;});
 	    p_context->PerformTransition();
 	}
+	FSM_LOG_FUNC_EXIT( );
 }
 void FSM::ShutDown()
 {
+	FSM_LOG_FUNC_ENTER( );
 	//Set thread control variable to false
 	m_Alive = false;
 	//Signal event occurred
@@ -102,9 +119,11 @@ void FSM::ShutDown()
 	//deallocate SM and thread pointers
 	delete m_smThread;
 	delete m_Instance;
+	FSM_LOG_FUNC_EXIT( );
 }
 void FSM::PerformTransition( )
 {
+	FSM_LOG_FUNC_ENTER( );
 	if ( ( ! m_transitionMap.empty() ) &&
 		 ( nullptr != m_eventGuard )
 	   ) 
@@ -134,15 +153,18 @@ void FSM::PerformTransition( )
 	m_eventOccurred = false;
 	m_eventGuard = nullptr;
 	m_dispatcher = nullptr;
+	FSM_LOG_FUNC_EXIT( );
 }
 //Static functions
 FSM& FSM::Instance()
 {
+	FSM_LOG_FUNC_ENTER( );
 	if( nullptr == m_Instance)
 	{
 		FSM::Init(std::string(__FILE__));
 	}
 	return *(m_Instance);
+	FSM_LOG_FUNC_EXIT( );
 }
 
 }
